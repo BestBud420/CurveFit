@@ -1,0 +1,25 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy import stats
+
+def calcReturn(data):
+    # calculate the daily returns based off the adjusted close
+    returns = np.zeros((0))
+    for i in range(0,len(data)-1):
+        returns = np.append(returns,(data[i+1]/data[i]-1))
+    return returns
+
+
+data = np.genfromtxt('^gspc16-20.csv', delimiter=',')
+data = data[1:,5]
+gspRet = calcReturn(data)
+z = np.abs(stats.zscore(gspRet))
+gspRet_z = gspRet[(z<3)]
+
+(mu,sigma) = stats.norm.fit(gspRet_z)
+binnum = 100
+n, bins, patches = plt.hist(gspRet_z, binnum)
+y = stats.norm.pdf(bins, mu, sigma)
+plt.plot(bins, y, 'r--')
+plt.show()

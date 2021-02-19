@@ -1,0 +1,27 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
+
+def calcReturn(data):
+    # calculate the daily returns based off the adjusted close
+    res = np.zeros((0))
+    for i in range(0,len(data)-1):
+        res = np.append(res,(data[i+1]/data[i]-1))
+    return res
+
+def gaussian(a,x,x0,sigma):
+    return a*np.exp(-0.5*((x-x0)/sigma**2)) # define gaussian function
+
+data = np.genfromtxt('^gspc16-20.csv', delimiter=',') # get data from txt file
+data = data[1:,5] # slice data to get adjusted close data 
+gspRet = calcReturn(data) # calculate daily return
+
+bnum = 100
+n, bins, patches = plt.hist(gspRet, bnum) # plot histogram
+
+x = np.linspace(-0.12,0.1,100) # create x axis for gaussian function
+popt, pcov = curve_fit(gaussian, x, n) # use curve fit to fit data to gaussian function
+plt.plot(x, gaussian(x,*popt), 'r-') # plot fitted curve
+
+plt.show()

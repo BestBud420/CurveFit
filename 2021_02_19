@@ -5,21 +5,23 @@ from scipy import stats
 
 def calcReturn(data):
     # calculate the daily returns based off the adjusted close
-    returns = np.zeros((0))
+    # daily return is 1-(i/i-1)
+    res = np.zeros((0))
     for i in range(0,len(data)-1):
-        returns = np.append(returns,(data[i+1]/data[i]-1))
-    return returns
+        res = np.append(res,(data[i+1]/data[i]-1))
+    return res
 
 
-data = np.genfromtxt('^gspc16-20.csv', delimiter=',')
-data = data[1:,5]
-gspRet = calcReturn(data)
-z = np.abs(stats.zscore(gspRet))
-gspRet_z = gspRet[(z<3)]
+data = np.genfromtxt('^gspc16-20.csv', delimiter=',') # import data from text file
+data = data[1:,5] # slice data so that only the adjusted close data remains
+gspRet = calcReturn(data) # calculate the daily returns using calcReturn
 
-(mu,sigma) = stats.norm.fit(gspRet_z)
-binnum = 100
-n, bins, patches = plt.hist(gspRet_z, binnum)
-y = stats.norm.pdf(bins, mu, sigma)
-plt.plot(bins, y, 'r--')
+z = np.abs(stats.zscore(gspRet)) # calculate z-score of returns
+gspRet_z = gspRet[(z<3)] # remove outliers with z-score >3 from the returns
+
+(mu,sigma) = stats.norm.fit(gspRet_z) # fit data against normal curve
+bnum = 100 # number of bins for histogram
+n, bins, patches = plt.hist(gspRet_z, bnum) # plot histogram of returns
+y = stats.norm.pdf(bins, mu, sigma) # define the fitted normal curve
+plt.plot(bins, y, 'r--') # plot the fitted normal curve
 plt.show()

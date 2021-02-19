@@ -11,7 +11,7 @@ def calcReturn(data):
     return res
 
 def gaussian(a,x,x0,sigma):
-    return a*np.exp(-0.5*((x-x0)/sigma**2)) # define gaussian function
+    return a*np.exp(-(x-x0)**2/(2*sigma**2)) # define gaussian function
 
 data = np.genfromtxt('^gspc16-20.csv', delimiter=',') # get data from txt file
 data = data[1:,5] # slice data to get adjusted close data 

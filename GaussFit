@@ -1,7 +1,7 @@
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+from scipy import stats
 
 def calcReturn(data):
     # calculate the daily returns based off the adjusted close
@@ -9,19 +9,27 @@ def calcReturn(data):
     for i in range(0,len(data)-1):
         res = np.append(res,(data[i+1]/data[i]-1))
     return res
+    
+def gaus(x,a,x0,sigma):
+    return a*np.exp(-(x-x0)**2/(2*sigma**2))
 
-def gaussian(a,x,x0,sigma):
-    return a*np.exp(-(x-x0)**2/(2*sigma**2)) # define gaussian function
-
-data = np.genfromtxt('^gspc16-20.csv', delimiter=',') # get data from txt file
-data = data[1:,5] # slice data to get adjusted close data 
-gspRet = calcReturn(data) # calculate daily return
+data = np.genfromtxt('^gspc16-20.csv', delimiter=',')
+data = data[1:,5]
+gspRet = calcReturn(data)
+z = np.abs(stats.zscore(gspRet))
+gspRet_z = gspRet[(z<2.5)]
 
 bnum = 100
-n, bins, patches = plt.hist(gspRet, bnum) # plot histogram
+n, bins, patches = plt.hist(gspRet, bnum)
+x = bins[:-1]
 
-x = np.linspace(-0.12,0.1,100) # create x axis for gaussian function
-popt, pcov = curve_fit(gaussian, x, n) # use curve fit to fit data to gaussian function
-plt.plot(x, gaussian(x,*popt), 'r-') # plot fitted curve
+y = n
+#n = len(x)                          #the number of data
+#mean = sum(x*y)/n                   #note this correction
+#sigma = sum(y*(x-mean)**2)/n        #note this correction
 
+popt,pcov = curve_fit(gaus,x,y)
+
+plt.plot(x,y,'b+:',label='data')
+plt.plot(x,gaus(x,*popt),'ro:',label='fit')
 plt.show()

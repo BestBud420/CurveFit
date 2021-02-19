@@ -20,10 +20,11 @@ z = np.abs(stats.zscore(gspRet))
 gspRet_z = gspRet[(z<2.5)]
 
 bnum = 100
-n, bins, patches = plt.hist(gspRet, bnum)
-x = bins[:-1]
+n, bins, patches = plt.hist(gspRet_z, bnum)
 
+x = bins[:-1]
 y = n
+
 #n = len(x)                          #the number of data
 #mean = sum(x*y)/n                   #note this correction
 #sigma = sum(y*(x-mean)**2)/n        #note this correction

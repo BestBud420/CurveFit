@@ -1,0 +1,43 @@
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
+from sklearn.neighbors import KernelDensity
+from sklearn.utils.fixes import parse_version
+from scipy import stats
+
+if parse_version(matplotlib.__version__)>=parse_version('2.1'):
+    density_param = {'density': True}
+else:
+    density_param = {'normed':True}
+
+
+def calcReturn(data):
+    # calculate the daily returns based off the adjusted close
+    res = np.zeros((0))
+    for i in range(0,len(data)-1):
+        res = np.append(res,(data[i+1]/data[i]-1))
+    return res
+
+def gaus(x,a,x0,sigma):
+    return a*np.exp(-(x-x0)**2/(2*sigma**2))
+
+data = np.genfromtxt('^gspc16-20.csv', delimiter=',')
+data = data[1:,5]
+gspRet = calcReturn(data)
+z = np.abs(stats.zscore(gspRet))
+gspRet_z = gspRet[(z<2.5)]
+
+bnum = 150
+n, bins, patches = plt.hist(gspRet_z, bnum)
+
+gspreshape = gspRet.reshape(-1,1)
+x = np.linspace(-0.03,0.03,150)[:,np.newaxis]
+#x = x.reshape(-1,1)
+fig,ax = plt.subplots()
+
+kde = KernelDensity(kernel='gaussian', bandwidth=0.0005).fit(gspreshape)
+log_dens = kde.score_samples(x)
+ax.plot(x,np.exp(log_dens))
+
+plt.show()

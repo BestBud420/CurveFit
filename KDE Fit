@@ -29,14 +29,17 @@ z = np.abs(stats.zscore(gspRet))
 gspRet_z = gspRet[(z<2.5)]
 
 bnum = 150
-n, bins, patches = plt.hist(gspRet_z, bnum)
+fig = plt.figure(figsize=(8,8))
+ax = fig.add_subplot(111)
+
+n, bins, patches = ax.hist(gspRet_z, bnum)
 
 gspreshape = gspRet.reshape(-1,1)
-x = np.linspace(-0.03,0.03,150)[:,np.newaxis]
-#x = x.reshape(-1,1)
-fig,ax = plt.subplots()
+x = bins[:-1]
+#x = np.linspace(-0.03,0.03,bnum)
+x = x.reshape(-1,1)
 
-kde = KernelDensity(kernel='gaussian', bandwidth=0.0005).fit(gspreshape)
+kde = KernelDensity(kernel='gaussian', bandwidth=0.007).fit(gspreshape)
 log_dens = kde.score_samples(x)
 ax.plot(x,np.exp(log_dens))
 
